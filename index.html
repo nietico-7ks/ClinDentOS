@@ -3,118 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda tu Cita - Consultorio Dental Sonrisa Perfecta</title>
+    <title>Consultorio Dental Sonrisa Perfecta</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-
-    <header class="header">
-        <div class="container">
-            <h1 class="logo">Sonrisa Perfecta</h1>
-            <p class="tagline">Tu salud dental es nuestra prioridad</p>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">✨ Sonrisa Perfecta</div>
+            <ul class="nav-menu">
+                <li><a class="nav-link" onclick="scrollToSection('services')">Servicios</a></li>
+                <li><a class="nav-link" onclick="scrollToSection('about')">Nosotros</a></li>
+                <li><a class="nav-link" onclick="scrollToSection('contact')">Contacto</a></li>
+            </ul>
+            <a class="nav-cta" onclick="openAppointment()">Agendar Cita</a>
         </div>
-    </header>
+    </nav>
 
-    <main class="main-container">
-        <section class="appointment-card">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Tu Sonrisa, Nuestra Pasión</h1>
+            <p>Cuidamos tu salud dental con la tecnología más avanzada y el mejor equipo de profesionales</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" onclick="openAppointment()">Agendar Cita Ahora</button>
+                <button class="btn btn-secondary" onclick="scrollToSection('services')">Ver Servicios</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="container">
+            <div class="section-title">
+                <h2>Nuestros Servicios</h2>
+                <p>Ofrecemos una amplia gama de tratamientos dentales</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🦷</div>
+                    <h3>Limpieza Dental</h3>
+                    <p>Mantén tu sonrisa limpia y saludable con nuestras limpiezas profesionales.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">✨</div>
+                    <h3>Blanqueamiento</h3>
+                    <p>Recupera el brillo natural de tus dientes con nuestros tratamientos de blanqueamiento.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">😁</div>
+                    <h3>Ortodoncia</h3>
+                    <p>Corrige la posición de tus dientes con tratamientos de ortodoncia modernos.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">👨‍⚕️</div>
+                    <h3>Consulta General</h3>
+                    <p>Evaluación completa de tu salud bucal con nuestros especialistas.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🩺</div>
+                    <h3>Extracciones</h3>
+                    <p>Procedimientos seguros y sin dolor con la mejor atención post-operatoria.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🦴</div>
+                    <h3>Implantes</h3>
+                    <p>Recupera la funcionalidad completa de tu dentadura con implantes de última generación.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Más de 15 años cuidando sonrisas</h2>
+                    <p>En Sonrisa Perfecta nos especializamos en ofrecer tratamientos dentales de la más alta calidad, combinando tecnología de punta con un trato humano y profesional.</p>
+                    <p>Nuestro equipo de especialistas está comprometido con tu bienestar y satisfacción.</p>
+                    <ul class="about-features">
+                        <li>Tecnología de última generación</li>
+                        <li>Profesionales altamente capacitados</li>
+                        <li>Atención personalizada</li>
+                        <li>Horarios flexibles</li>
+                        <li>Instalaciones modernas y cómodas</li>
+                    </ul>
+                </div>
+                <div class="about-image">
+                    😁
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>Contáctanos</h2>
+                <p>Estamos aquí para ayudarte</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <div class="contact-icon">📍</div>
+                    <h3>Ubicación</h3>
+                    <p>Calle 123 #45-67<br>Bogotá, Colombia</p>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">📞</div>
+                    <h3>Teléfono</h3>
+                    <p>+57 (601) 234 5678<br>+57 300 123 4567</p>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">📧</div>
+                    <h3>Email</h3>
+                    <p>info@sonrisaperfecta.com<br>citas@sonrisaperfecta.com</p>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">🕐</div>
+                    <h3>Horario</h3>
+                    <p>Lun - Vie: 9:00 AM - 6:00 PM<br>Sábados: 9:00 AM - 2:00 PM</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Consultorio Dental Sonrisa Perfecta. Todos los derechos reservados.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Hecho con ❤️ para tu sonrisa</p>
+        </div>
+    </footer>
+
+    <!-- Appointment Modal -->
+    <div class="appointment-modal" id="appointmentModal">
+        <div class="appointment-content">
+            <span class="close-appointment" onclick="closeAppointment()">&times;</span>
             <h2>Agendar Nueva Cita</h2>
-            <p class="intro">Por favor, completa los siguientes pasos para reservar tu cita.</p>
+            <p class="intro">Completa el proceso en 4 sencillos pasos</p>
+
+            <!-- Progress Indicator -->
+            <div class="progress-container">
+                <div class="progress-steps">
+                    <div class="progress-line" id="progressLine"></div>
+                    <div class="progress-step active" data-step="0">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Servicio</div>
+                    </div>
+                    <div class="progress-step" data-step="1">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Fecha</div>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Hora</div>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">Datos</div>
+                    </div>
+                    <div class="progress-step" data-step="4">
+                        <div class="step-circle">✓</div>
+                        <div class="step-label">Confirmar</div>
+                    </div>
+                </div>
+            </div>
 
             <form id="appointmentForm">
                 <!-- Paso 1: Seleccionar Servicio -->
                 <div class="form-step active" id="step1">
-                    <h3>1. Selecciona un Servicio</h3>
+                    <h3>Selecciona un Servicio</h3>
                     <div class="service-options">
-                        <label>
-                            <input type="radio" name="service" value="Limpieza Dental" required>
-                            <span>Limpieza Dental</span>
-                        </label>
-                        <label>
-                            <input type="radio" name="service" value="Blanqueamiento" required>
-                            <span>Blanqueamiento</span>
-                        </label>
-                        <label>
-                            <input type="radio" name="service" value="Ortodoncia" required>
-                            <span>Ortodoncia</span>
-                        </label>
-                        <label>
-                            <input type="radio" name="service" value="Consulta General" required>
-                            <span>Consulta General</span>
-                        </label>
-                        <label>
-                            <input type="radio" name="service" value="Extracción" required>
-                            <span>Extracción</span>
-                        </label>
+                        <div class="service-option">
+                            <input type="radio" name="service" id="service1" value="Limpieza Dental">
+                            <label for="service1">
+                                <div class="service-icon">🦷</div>
+                                <div class="service-name">Limpieza Dental</div>
+                            </label>
+                        </div>
+                        <div class="service-option">
+                            <input type="radio" name="service" id="service2" value="Blanqueamiento">
+                            <label for="service2">
+                                <div class="service-icon">✨</div>
+                                <div class="service-name">Blanqueamiento</div>
+                            </label>
+                        </div>
+                        <div class="service-option">
+                            <input type="radio" name="service" id="service3" value="Ortodoncia">
+                            <label for="service3">
+                                <div class="service-icon">😁</div>
+                                <div class="service-name">Ortodoncia</div>
+                            </label>
+                        </div>
+                        <div class="service-option">
+                            <input type="radio" name="service" id="service4" value="Consulta General">
+                            <label for="service4">
+                                <div class="service-icon">👨‍⚕️</div>
+                                <div class="service-name">Consulta General</div>
+                            </label>
+                        </div>
+                        <div class="service-option">
+                            <input type="radio" name="service" id="service5" value="Extracción">
+                            <label for="service5">
+                                <div class="service-icon">🩺</div>
+                                <div class="service-name">Extracción</div>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Paso 2: Seleccionar Fecha -->
                 <div class="form-step" id="step2">
-                    <h3>2. Selecciona una Fecha</h3>
-                    <input type="date" id="datePicker" name="date" required>
+                    <h3>Selecciona una Fecha</h3>
+                    <div class="date-picker-container">
+                        <input type="date" id="datePicker" name="date">
+                    </div>
                 </div>
 
                 <!-- Paso 3: Seleccionar Hora -->
                 <div class="form-step" id="step3">
-                    <h3>3. Selecciona una Hora</h3>
-                    <div id="timeSlots" class="time-slots-grid">
-                        <!-- Las horas se generarán dinámicamente con JavaScript -->
-                    </div>
+                    <h3>Selecciona una Hora</h3>
+                    <div id="timeSlots" class="time-slots-grid"></div>
                 </div>
 
                 <!-- Paso 4: Datos del Paciente -->
                 <div class="form-step" id="step4">
-                    <h3>4. Tus Datos</h3>
+                    <h3>Tus Datos</h3>
                     <div class="input-group">
-                        <label for="name">Nombre Completo</label>
-                        <input type="text" id="name" name="name" required>
+                        <label for="name">Nombre Completo *</label>
+                        <input type="text" id="name" name="name" placeholder="Ej: Juan Pérez" required>
                     </div>
                     <div class="input-group">
-                        <label for="email">Correo Electrónico</label>
-                        <input type="email" id="email" name="email" required>
+                        <label for="email">Correo Electrónico *</label>
+                        <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" required>
                     </div>
                     <div class="input-group">
-                        <label for="phone">Teléfono</label>
-                        <input type="tel" id="phone" name="phone" required>
+                        <label for="phone">Teléfono *</label>
+                        <input type="tel" id="phone" name="phone" placeholder="300 123 4567" required>
                     </div>
                 </div>
 
                 <!-- Resumen y Confirmación -->
                 <div class="form-step" id="summaryStep">
                     <h3>Resumen de tu Cita</h3>
-                    <div id="summaryContent" class="summary-box">
-                        <!-- El resumen se generará dinámicamente -->
-                    </div>
-                    <p class="confirmation-note">Al confirmar, tu cita será agendada.</p>
+                    <div id="summaryContent" class="summary-box"></div>
+                    <p style="text-align: center; margin-top: 1.5rem; font-style: italic; color: #777;">
+                        Al confirmar, tu cita será agendada inmediatamente
+                    </p>
                 </div>
 
                 <!-- Navegación entre pasos -->
                 <div class="form-navigation">
-                    <button type="button" id="prevBtn" class="nav-btn secondary" disabled>Anterior</button>
-                    <button type="button" id="nextBtn" class="nav-btn primary">Siguiente</button>
-                    <button type="submit" id="submitBtn" class="nav-btn primary" style="display: none;">Confirmar Cita</button>
+                    <button type="button" id="prevBtn" class="nav-btn secondary" disabled>← Anterior</button>
+                    <button type="button" id="nextBtn" class="nav-btn primary">Siguiente →</button>
+                    <button type="submit" id="submitBtn" class="nav-btn primary" style="display: none;">
+                        Confirmar Cita ✓
+                    </button>
                 </div>
             </form>
-        </section>
-    </main>
-
-    <!-- Modal de Confirmación -->
-    <div id="confirmationModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h3 id="modalTitle">¡Cita Agendada!</h3>
-            <p id="modalMessage">Tu cita ha sido reservada con éxito.</p>
         </div>
     </div>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2024 Consultorio Dental Sonrisa Perfecta. Todos los derechos reservados.</p>
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmationModal">
+        <div class="modal-content">
+            <div class="modal-icon success" id="modalIcon">✓</div>
+            <h3 id="modalTitle">¡Cita Agendada!</h3>
+            <p id="modalMessage">Tu cita ha sido reservada con éxito.</p>
+            <button class="close-modal-btn" onclick="closeConfirmationModal()">Entendido</button>
         </div>
-    </footer>
+    </div>
 
     <script src="functions.js"></script>
 </body>
