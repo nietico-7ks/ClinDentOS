@@ -1,521 +1,505 @@
-// ============================================
-// SISTEMA DE AGENDAMIENTO DE CITAS DENTALES
-// ============================================
+// ===================================
+// VARIABLES GLOBALES
+// ===================================
 
-// --- Base de Datos en Memoria (Simulación) ---
-let appointmentsDB = [];
+// Almacena todas las citas que se han agendado
+var citasAgendadas = [];
 
-// --- Constantes ---
-const TIME_SLOTS = [
+// Almacena los datos de la cita que se está creando
+var datosCita = {
+    servicio: '',
+    fecha: '',
+    hora: '',
+    nombre: '',
+    email: '',
+    telefono: ''
+};
+
+// Número del paso actual (empieza en 1)
+var pasoActual = 1;
+
+// Lista de todos los horarios disponibles en el consultorio
+var horariosDisponibles = [
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-    '12:00', '12:30', '14:00', '14:30', '15:00', '15:30', 
+    '12:00', '12:30', '14:00', '14:30', '15:00', '15:30',
     '16:00', '16:30', '17:00'
 ];
 
-// --- Estado de la Aplicación ---
-let currentStep = 0;
-const appointmentData = {
-    service: '',
-    date: '',
-    time: '',
-    name: '',
-    email: '',
-    phone: ''
-};
+// ===================================
+// FUNCIONES PARA ABRIR/CERRAR MODALES
+// ===================================
 
-// --- Elementos del DOM ---
-let form, prevBtn, nextBtn, submitBtn, steps, progressSteps, progressLine;
-let datePicker, timeSlotsContainer, summaryContent;
-let appointmentModal, confirmationModal, modalTitle, modalMessage, modalIcon;
+// Función para abrir el modal de agendamiento
+function abrirModal() {
+    document.getElementById('modalAgendamiento').style.display = 'block';
+    reiniciarFormulario();
+    configurarFechaMinima();
+}
 
-// ============================================
-// INICIALIZACIÓN
-// ============================================
+// Función para cerrar el modal de agendamiento
+function cerrarModal() {
+    document.getElementById('modalAgendamiento').style.display = 'none';
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-    initializeElements();
-    setupEventListeners();
-    initializeDatePicker();
+// Función para cerrar el modal de confirmación
+function cerrarConfirmacion() {
+    document.getElementById('modalConfirmacion').style.display = 'none';
+}
+
+// ===================================
+// CONFIGURACIÓN DE LA FECHA
+// ===================================
+
+// Configurar la fecha mínima como hoy y la máxima como 3 meses después
+function configurarFechaMinima() {
+    // Obtener la fecha de hoy
+    var hoy = new Date();
+    var año = hoy.getFullYear();
+    var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
+    var dia = hoy.getDate().toString().padStart(2, '0');
+    var fechaHoy = año + '-' + mes + '-' + dia;
     
-    // Efecto scroll para navbar
-    window.addEventListener('scroll', () => {
-        const navbar = document.getElementById('navbar');
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-    });
+    // Establecer la fecha de hoy en el input
+    document.getElementById('fecha').value = fechaHoy;
+    document.getElementById('fecha').min = fechaHoy;
+    datosCita.fecha = fechaHoy;
+    
+    // Calcular fecha máxima (3 meses después)
+    var fechaMaxima = new Date();
+    fechaMaxima.setMonth(fechaMaxima.getMonth() + 3);
+    var añoMax = fechaMaxima.getFullYear();
+    var mesMax = (fechaMaxima.getMonth() + 1).toString().padStart(2, '0');
+    var diaMax = fechaMaxima.getDate().toString().padStart(2, '0');
+    document.getElementById('fecha').max = añoMax + '-' + mesMax + '-' + diaMax;
+    
+    // Generar los horarios disponibles para hoy
+    generarHorarios();
+}
+
+// Cuando el usuario cambia la fecha, actualizar los horarios
+document.getElementById('fecha').addEventListener('change', function() {
+    datosCita.fecha = this.value;
+    generarHorarios();
 });
 
-function initializeElements() {
-    form = document.getElementById('appointmentForm');
-    prevBtn = document.getElementById('prevBtn');
-    nextBtn = document.getElementById('nextBtn');
-    submitBtn = document.getElementById('submitBtn');
-    steps = document.querySelectorAll('.form-step');
-    progressSteps = document.querySelectorAll('.progress-step');
-    progressLine = document.getElementById('progressLine');
-    datePicker = document.getElementById('datePicker');
-    timeSlotsContainer = document.getElementById('timeSlots');
-    summaryContent = document.getElementById('summaryContent');
-    appointmentModal = document.getElementById('appointmentModal');
-    confirmationModal = document.getElementById('confirmationModal');
-    modalTitle = document.getElementById('modalTitle');
-    modalMessage = document.getElementById('modalMessage');
-    modalIcon = document.getElementById('modalIcon');
-}
+// ===================================
+// GENERAR HORARIOS DISPONIBLES
+// ===================================
 
-function setupEventListeners() {
-    prevBtn.addEventListener('click', () => changeStep(-1));
-    nextBtn.addEventListener('click', validateAndNext);
-    form.addEventListener('submit', handleSubmit);
-    datePicker.addEventListener('change', handleDateChange);
+function generarHorarios() {
+    var contenedor = document.getElementById('contenedorHoras');
+    contenedor.innerHTML = ''; // Limpiar los horarios anteriores
     
-    // Cerrar modales al hacer clic fuera
-    window.addEventListener('click', (e) => {
-        if (e.target === appointmentModal) {
-            closeAppointment();
+    // Buscar qué horas ya están ocupadas en esta fecha
+    var horasOcupadas = [];
+    for (var i = 0; i < citasAgendadas.length; i++) {
+        if (citasAgendadas[i].fecha === datosCita.fecha) {
+            horasOcupadas.push(citasAgendadas[i].hora);
         }
-        if (e.target === confirmationModal) {
-            closeConfirmationModal();
-        }
-    });
-}
-
-function initializeDatePicker() {
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    }
     
-    // Establecer fecha mínima como hoy
-    datePicker.setAttribute('min', todayStr);
-    
-    // Establecer fecha máxima (3 meses adelante)
-    const maxDate = new Date();
-    maxDate.setMonth(maxDate.getMonth() + 3);
-    datePicker.setAttribute('max', maxDate.toISOString().split('T')[0]);
-    
-    // Establecer fecha por defecto
-    datePicker.value = todayStr;
-    appointmentData.date = todayStr;
-    
-    // Generar slots iniciales
-    generateTimeSlots(todayStr);
-}
-
-// ============================================
-// NAVEGACIÓN ENTRE PÁGINAS
-// ============================================
-
-function scrollToSection(sectionId) {
-    const element = document.getElementById(sectionId);
-    if (element) {
-        const offset = 80; // Altura del navbar
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - offset;
+    // Crear un botón para cada horario disponible
+    for (var j = 0; j < horariosDisponibles.length; j++) {
+        var hora = horariosDisponibles[j];
+        var boton = document.createElement('button');
+        boton.className = 'boton-hora';
+        boton.textContent = hora;
+        boton.setAttribute('data-hora', hora);
         
-        window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-        });
+        // Verificar si esta hora está ocupada
+        var estaOcupada = false;
+        for (var k = 0; k < horasOcupadas.length; k++) {
+            if (horasOcupadas[k] === hora) {
+                estaOcupada = true;
+                break;
+            }
+        }
+        
+        if (estaOcupada) {
+            // Marcar como ocupado
+            boton.className = 'boton-hora ocupado';
+            boton.disabled = true;
+        } else {
+            // Agregar evento de clic
+            boton.onclick = function() {
+                seleccionarHora(this);
+            };
+        }
+        
+        contenedor.appendChild(boton);
     }
 }
 
-// ============================================
-// MODAL DE AGENDAMIENTO
-// ============================================
-
-function openAppointment() {
-    appointmentModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    resetForm();
+// Función para seleccionar una hora específica
+function seleccionarHora(botonClicado) {
+    // Quitar la selección de todos los botones
+    var todosLosBotones = document.getElementsByClassName('boton-hora');
+    for (var i = 0; i < todosLosBotones.length; i++) {
+        todosLosBotones[i].classList.remove('seleccionado');
+    }
+    
+    // Marcar el botón clicado como seleccionado
+    botonClicado.classList.add('seleccionado');
+    datosCita.hora = botonClicado.getAttribute('data-hora');
 }
 
-function closeAppointment() {
-    appointmentModal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
+// ===================================
+// NAVEGACIÓN ENTRE PASOS
+// ===================================
 
-// ============================================
-// NAVEGACIÓN ENTRE PASOS DEL FORMULARIO
-// ============================================
-
-function showStep(stepIndex) {
+// Función para mostrar un paso específico
+function mostrarPaso(numeroPaso) {
     // Ocultar todos los pasos
-    steps.forEach((step, index) => {
-        step.classList.toggle('active', index === stepIndex);
-    });
+    var pasos = document.getElementsByClassName('seccion-paso');
+    for (var i = 0; i < pasos.length; i++) {
+        pasos[i].classList.remove('visible');
+    }
     
-    updateProgressBar();
-    updateNavButtons();
+    // Mostrar el paso actual
+    document.getElementById('paso-' + numeroPaso).classList.add('visible');
+    
+    // Actualizar el indicador de progreso
+    actualizarIndicador();
+    
+    // Actualizar los botones de navegación
+    actualizarBotones();
 }
 
-function updateProgressBar() {
-    progressSteps.forEach((step, index) => {
-        if (index < currentStep) {
-            step.classList.add('completed');
-            step.classList.remove('active');
-        } else if (index === currentStep) {
-            step.classList.add('active');
-            step.classList.remove('completed');
+// Función para actualizar el indicador de progreso
+function actualizarIndicador() {
+    for (var i = 1; i <= 5; i++) {
+        var indicador = document.getElementById('indicador-' + i);
+        
+        if (i < pasoActual) {
+            // Pasos completados
+            indicador.classList.add('completado');
+            indicador.classList.remove('activo');
+        } else if (i === pasoActual) {
+            // Paso actual
+            indicador.classList.add('activo');
+            indicador.classList.remove('completado');
         } else {
-            step.classList.remove('active', 'completed');
+            // Pasos futuros
+            indicador.classList.remove('activo');
+            indicador.classList.remove('completado');
         }
-    });
-    
-    // Actualizar línea de progreso
-    const progress = (currentStep / (progressSteps.length - 1)) * 100;
-    progressLine.style.width = `${progress}%`;
+    }
 }
 
-function updateNavButtons() {
-    prevBtn.disabled = currentStep === 0;
+// Función para actualizar los botones de navegación
+function actualizarBotones() {
+    var botonAnterior = document.getElementById('botonAnterior');
+    var botonSiguiente = document.getElementById('botonSiguiente');
+    var botonConfirmar = document.getElementById('botonConfirmar');
     
-    if (currentStep === steps.length - 1) {
-        nextBtn.style.display = 'none';
-        submitBtn.style.display = 'block';
+    // Deshabilitar el botón "Anterior" en el primer paso
+    if (pasoActual === 1) {
+        botonAnterior.disabled = true;
     } else {
-        nextBtn.style.display = 'block';
-        submitBtn.style.display = 'none';
+        botonAnterior.disabled = false;
+    }
+    
+    // En el último paso, mostrar el botón "Confirmar" en lugar de "Siguiente"
+    if (pasoActual === 5) {
+        botonSiguiente.style.display = 'none';
+        botonConfirmar.style.display = 'block';
+    } else {
+        botonSiguiente.style.display = 'block';
+        botonConfirmar.style.display = 'none';
     }
 }
 
-function changeStep(direction) {
-    currentStep += direction;
-    showStep(currentStep);
-    
-    if (currentStep === steps.length - 1) {
-        generateSummary();
-    }
-}
-
-// ============================================
-// VALIDACIÓN Y RECOLECCIÓN DE DATOS
-// ============================================
-
-function validateAndNext() {
-    let isValid = true;
-    
-    if (currentStep === 0) {
-        // Validar servicio
-        const selectedService = document.querySelector('input[name="service"]:checked');
-        if (selectedService) {
-            appointmentData.service = selectedService.value;
-        } else {
-            isValid = false;
-            showAlert('Por favor, selecciona un servicio.', 'warning');
-        }
-    } 
-    else if (currentStep === 1) {
-        // Validar fecha
-        if (datePicker.value) {
-            appointmentData.date = datePicker.value;
-        } else {
-            isValid = false;
-            showAlert('Por favor, selecciona una fecha.', 'warning');
-        }
-    } 
-    else if (currentStep === 2) {
-        // Validar hora
-        const selectedTime = document.querySelector('.time-slot.selected');
-        if (selectedTime && !selectedTime.classList.contains('disabled')) {
-            appointmentData.time = selectedTime.dataset.time;
-        } else {
-            isValid = false;
-            showAlert('Por favor, selecciona una hora disponible.', 'warning');
-        }
-    } 
-    else if (currentStep === 3) {
-        // Validar datos del usuario
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const phone = document.getElementById('phone').value.trim();
+// Función para ir al siguiente paso
+function irPasoSiguiente() {
+    // Validar el paso actual antes de avanzar
+    if (validarPasoActual()) {
+        pasoActual = pasoActual + 1;
         
-        if (!name) {
-            isValid = false;
-            showAlert('Por favor, ingresa tu nombre completo.', 'warning');
-        } else if (!email || !isValidEmail(email)) {
-            isValid = false;
-            showAlert('Por favor, ingresa un correo electrónico válido.', 'warning');
-        } else if (!phone || phone.length < 7) {
-            isValid = false;
-            showAlert('Por favor, ingresa un número de teléfono válido.', 'warning');
-        } else {
-            appointmentData.name = name;
-            appointmentData.email = email;
-            appointmentData.phone = phone;
-        }
-    }
-    
-    if (isValid) {
-        changeStep(1);
-    }
-}
-
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-// ============================================
-// MANEJO DE FECHA Y HORAS
-// ============================================
-
-function handleDateChange(e) {
-    const selectedDate = e.target.value;
-    appointmentData.date = selectedDate;
-    generateTimeSlots(selectedDate);
-}
-
-function generateTimeSlots(date) {
-    timeSlotsContainer.innerHTML = '';
-    
-    const bookedTimes = appointmentsDB
-        .filter(apt => apt.date === date)
-        .map(apt => apt.time);
-    
-    TIME_SLOTS.forEach(time => {
-        const slot = document.createElement('button');
-        slot.type = 'button';
-        slot.classList.add('time-slot');
-        slot.dataset.time = time;
-        slot.textContent = time;
-        
-        if (bookedTimes.includes(time)) {
-            slot.classList.add('disabled');
-            slot.disabled = true;
-        } else {
-            slot.addEventListener('click', () => selectTimeSlot(slot));
+        // Si llegamos al paso 5, generar el resumen
+        if (pasoActual === 5) {
+            generarResumen();
         }
         
-        timeSlotsContainer.appendChild(slot);
-    });
+        mostrarPaso(pasoActual);
+    }
 }
 
-function selectTimeSlot(slot) {
-    // Remover selección previa
-    document.querySelectorAll('.time-slot').forEach(s => {
-        s.classList.remove('selected');
-    });
+// Función para ir al paso anterior
+function irPasoAnterior() {
+    pasoActual = pasoActual - 1;
+    mostrarPaso(pasoActual);
+}
+
+// ===================================
+// VALIDACIÓN DE CADA PASO
+// ===================================
+
+function validarPasoActual() {
+    if (pasoActual === 1) {
+        // Validar que se haya seleccionado un servicio
+        var servicioSeleccionado = document.querySelector('input[name="servicio"]:checked');
+        if (servicioSeleccionado) {
+            datosCita.servicio = servicioSeleccionado.value;
+            return true;
+        } else {
+            mostrarAlerta('Por favor, selecciona un servicio');
+            return false;
+        }
+    }
     
-    // Seleccionar nueva hora
-    slot.classList.add('selected');
-    appointmentData.time = slot.dataset.time;
+    if (pasoActual === 2) {
+        // Validar que se haya seleccionado una fecha
+        var fecha = document.getElementById('fecha').value;
+        if (fecha) {
+            datosCita.fecha = fecha;
+            return true;
+        } else {
+            mostrarAlerta('Por favor, selecciona una fecha');
+            return false;
+        }
+    }
+    
+    if (pasoActual === 3) {
+        // Validar que se haya seleccionado una hora
+        if (datosCita.hora) {
+            return true;
+        } else {
+            mostrarAlerta('Por favor, selecciona una hora');
+            return false;
+        }
+    }
+    
+    if (pasoActual === 4) {
+        // Validar los datos del paciente
+        var nombre = document.getElementById('nombre').value.trim();
+        var email = document.getElementById('email').value.trim();
+        var telefono = document.getElementById('telefono').value.trim();
+        
+        if (!nombre) {
+            mostrarAlerta('Por favor, ingresa tu nombre completo');
+            return false;
+        }
+        
+        if (!email || !validarEmail(email)) {
+            mostrarAlerta('Por favor, ingresa un correo electrónico válido');
+            return false;
+        }
+        
+        if (!telefono || telefono.length < 7) {
+            mostrarAlerta('Por favor, ingresa un teléfono válido');
+            return false;
+        }
+        
+        datosCita.nombre = nombre;
+        datosCita.email = email;
+        datosCita.telefono = telefono;
+        return true;
+    }
+    
+    return true;
 }
 
-// ============================================
-// RESUMEN Y CONFIRMACIÓN
-// ============================================
-
-function generateSummary() {
-    summaryContent.innerHTML = `
-        <div class="summary-item">
-            <span class="summary-label">Servicio:</span>
-            <span class="summary-value">${appointmentData.service}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">Fecha:</span>
-            <span class="summary-value">${formatDate(appointmentData.date)}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">Hora:</span>
-            <span class="summary-value">${appointmentData.time}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">Nombre:</span>
-            <span class="summary-value">${appointmentData.name}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">Email:</span>
-            <span class="summary-value">${appointmentData.email}</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">Teléfono:</span>
-            <span class="summary-value">${appointmentData.phone}</span>
-        </div>
-    `;
+// Función para validar el formato del email
+function validarEmail(email) {
+    var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
 }
 
-function formatDate(dateString) {
-    const options = { 
+// ===================================
+// GENERAR RESUMEN
+// ===================================
+
+function generarResumen() {
+    var contenedor = document.getElementById('contenedorResumen');
+    
+    // Formatear la fecha para mostrarla más bonita
+    var fechaFormateada = formatearFecha(datosCita.fecha);
+    
+    // Crear el HTML del resumen
+    contenedor.innerHTML = 
+        '<div class="item-resumen">' +
+            '<span class="etiqueta-resumen">Servicio:</span>' +
+            '<span class="valor-resumen">' + datosCita.servicio + '</span>' +
+        '</div>' +
+        '<div class="item-resumen">' +
+            '<span class="etiqueta-resumen">Fecha:</span>' +
+            '<span class="valor-resumen">' + fechaFormateada + '</span>' +
+        '</div>' +
+        '<div class="item-resumen">' +
+            '<span class="etiqueta-resumen">Hora:</span>' +
+            '<span class="valor-resumen">' + datosCita.hora + '</span>' +
+        '</div>' +
+        '<div class="item-resumen">' +
+            '<span class="etiqueta-resumen">Nombre:</span>' +
+            '<span class="valor-resumen">' + datosCita.nombre + '</span>' +
+        '</div>' +
+        '<div class="item-resumen">' +
+            '<span class="etiqueta-resumen">Email:</span>' +
+            '<span class="valor-resumen">' + datosCita.email + '</span>' +
+        '</div>' +
+        '<div class="item-resumen">' +
+            '<span class="etiqueta-resumen">Teléfono:</span>' +
+            '<span class="valor-resumen">' + datosCita.telefono + '</span>' +
+        '</div>';
+}
+
+// Función para formatear la fecha de forma legible
+function formatearFecha(fechaStr) {
+    var fecha = new Date(fechaStr + 'T00:00:00');
+    var opciones = { 
         weekday: 'long', 
         year: 'numeric', 
         month: 'long', 
         day: 'numeric' 
     };
-    const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('es-ES', options);
+    return fecha.toLocaleDateString('es-ES', opciones);
 }
 
-// ============================================
-// ENVÍO DEL FORMULARIO
-// ============================================
+// ===================================
+// CONFIRMAR CITA
+// ===================================
 
-function handleSubmit(e) {
-    e.preventDefault();
+function confirmarCita() {
+    // Verificar que la hora no haya sido reservada por otro usuario
+    var yaReservada = false;
+    for (var i = 0; i < citasAgendadas.length; i++) {
+        if (citasAgendadas[i].fecha === datosCita.fecha && 
+            citasAgendadas[i].hora === datosCita.hora) {
+            yaReservada = true;
+            break;
+        }
+    }
     
-    // Verificación final de disponibilidad
-    const isAlreadyBooked = appointmentsDB.some(apt => 
-        apt.date === appointmentData.date && apt.time === appointmentData.time
-    );
-    
-    if (isAlreadyBooked) {
-        showConfirmationModal(
+    if (yaReservada) {
+        // Mostrar error
+        mostrarModalConfirmacion(
             'error',
             '❌',
             'Error',
-            'Lo sentimos, esa hora ya fue agendada por otro paciente. Por favor, elige otra hora disponible.'
+            'Lo sentimos, esa hora ya fue reservada. Por favor, selecciona otra hora.'
         );
-        // Volver al paso de selección de hora
-        currentStep = 2;
-        showStep(currentStep);
-        generateTimeSlots(appointmentData.date);
-        return;
+        // Regresar al paso 3 para elegir otra hora
+        pasoActual = 3;
+        mostrarPaso(pasoActual);
+        generarHorarios();
+    } else {
+        // Guardar la cita
+        var nuevaCita = {
+            servicio: datosCita.servicio,
+            fecha: datosCita.fecha,
+            hora: datosCita.hora,
+            nombre: datosCita.nombre,
+            email: datosCita.email,
+            telefono: datosCita.telefono
+        };
+        citasAgendadas.push(nuevaCita);
+        
+        // Mostrar confirmación exitosa
+        var mensaje = 'Hola ' + datosCita.nombre + ', tu cita para ' + 
+                     datosCita.servicio + ' el ' + formatearFecha(datosCita.fecha) + 
+                     ' a las ' + datosCita.hora + ' ha sido confirmada. ' +
+                     'Te enviaremos un recordatorio a ' + datosCita.email;
+        
+        mostrarModalConfirmacion(
+            'exito',
+            '✓',
+            '¡Cita Agendada con Éxito!',
+            mensaje
+        );
+        
+        // Cerrar el modal de agendamiento
+        cerrarModal();
     }
-    
-    // Guardar cita
-    saveAppointment({...appointmentData});
-    
-    // Mostrar confirmación
-    showConfirmationModal(
-        'success',
-        '✓',
-        '¡Cita Agendada con Éxito!',
-        `Hola ${appointmentData.name}, tu cita para ${appointmentData.service} el ${formatDate(appointmentData.date)} a las ${appointmentData.time} ha sido confirmada. Te enviaremos un recordatorio a ${appointmentData.email}.`
-    );
-    
-    // Cerrar modal de agendamiento
-    closeAppointment();
-    
-    // Resetear formulario
-    resetForm();
 }
 
-// ============================================
-// MANEJO DE BASE DE DATOS
-// ============================================
+// ===================================
+// MOSTRAR MODAL DE CONFIRMACIÓN
+// ===================================
 
-function saveAppointment(appointment) {
-    appointmentsDB.push(appointment);
-    console.log('Cita guardada:', appointment);
-    console.log('Total de citas:', appointmentsDB.length);
-}
-
-// ============================================
-// MODALES Y ALERTAS
-// ============================================
-
-function showConfirmationModal(type, icon, title, message) {
-    modalIcon.textContent = icon;
-    modalIcon.className = `modal-icon ${type}`;
-    modalTitle.textContent = title;
-    modalMessage.textContent = message;
-    confirmationModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeConfirmationModal() {
-    confirmationModal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
-function showAlert(message, type = 'info') {
-    // Crear alerta personalizada
-    const alertDiv = document.createElement('div');
-    alertDiv.style.cssText = `
-        position: fixed;
-        top: 100px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: ${type === 'warning' ? '#F39C12' : '#3498db'};
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        z-index: 9999;
-        animation: slideDown 0.3s ease-out;
-        font-weight: 600;
-        max-width: 90%;
-        text-align: center;
-    `;
-    alertDiv.textContent = message;
+function mostrarModalConfirmacion(tipo, icono, titulo, mensaje) {
+    var modal = document.getElementById('modalConfirmacion');
+    var iconoElemento = document.getElementById('iconoConfirmacion');
+    var tituloElemento = document.getElementById('tituloConfirmacion');
+    var mensajeElemento = document.getElementById('mensajeConfirmacion');
     
-    document.body.appendChild(alertDiv);
+    iconoElemento.textContent = icono;
+    iconoElemento.className = 'icono-confirmacion ' + tipo;
+    tituloElemento.textContent = titulo;
+    mensajeElemento.textContent = mensaje;
     
-    setTimeout(() => {
-        alertDiv.style.animation = 'slideUp 0.3s ease-out';
-        setTimeout(() => alertDiv.remove(), 300);
+    modal.style.display = 'block';
+}
+
+// ===================================
+// MOSTRAR ALERTAS TEMPORALES
+// ===================================
+
+function mostrarAlerta(mensaje) {
+    // Crear el elemento de alerta
+    var alerta = document.createElement('div');
+    alerta.className = 'alerta';
+    alerta.textContent = mensaje;
+    
+    // Agregar al body
+    document.body.appendChild(alerta);
+    
+    // Eliminar después de 3 segundos
+    setTimeout(function() {
+        alerta.remove();
     }, 3000);
 }
 
-// ============================================
-// RESETEO DEL FORMULARIO
-// ============================================
+// ===================================
+// REINICIAR FORMULARIO
+// ===================================
 
-function resetForm() {
-    form.reset();
-    currentStep = 0;
-    showStep(currentStep);
+function reiniciarFormulario() {
+    // Volver al paso 1
+    pasoActual = 1;
+    mostrarPaso(pasoActual);
     
-    // Limpiar datos
-    Object.keys(appointmentData).forEach(key => {
-        appointmentData[key] = '';
-    });
+    // Limpiar todos los datos
+    datosCita.servicio = '';
+    datosCita.fecha = '';
+    datosCita.hora = '';
+    datosCita.nombre = '';
+    datosCita.email = '';
+    datosCita.telefono = '';
     
-    // Resetear fecha a hoy
-    const today = new Date().toISOString().split('T')[0];
-    datePicker.value = today;
-    appointmentData.date = today;
+    // Limpiar los campos del formulario
+    var radios = document.querySelectorAll('input[name="servicio"]');
+    for (var i = 0; i < radios.length; i++) {
+        radios[i].checked = false;
+    }
     
-    // Regenerar slots de tiempo
-    generateTimeSlots(today);
-    
-    // Limpiar selecciones
-    document.querySelectorAll('input[name="service"]').forEach(input => {
-        input.checked = false;
-    });
-    
-    document.querySelectorAll('.time-slot').forEach(slot => {
-        slot.classList.remove('selected');
-    });
+    document.getElementById('nombre').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('telefono').value = '';
 }
 
-// ============================================
-// ANIMACIONES CSS ADICIONALES
-// ============================================
-
-// Agregar estilos de animación para alertas
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateX(-50%) translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
+document.getElementById('formulario-registro').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const nombre = document.getElementById('nombre').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const password2 = document.getElementById('password2').value;
+    
+    if (nombre === '' || email === '' || password === '') {
+        alert('Por favor completa todos los campos');
+        return;
     }
     
-    @keyframes slideUp {
-        from {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateX(-50%) translateY(-20px);
-        }
+    if (password.length < 6) {
+        alert('La contraseña debe tener al menos 6 caracteres');
+        return;
     }
-`;
-document.head.appendChild(style);
-
-// ============================================
-// FUNCIONES GLOBALES (llamadas desde HTML)
-// ============================================
-
-window.openAppointment = openAppointment;
-window.closeAppointment = closeAppointment;
-window.closeConfirmationModal = closeConfirmationModal;
-window.scrollToSection = scrollToSection;
+    
+    if (password !== password2) {
+        alert('Las contraseñas no coinciden');
+        return;
+    }
+    
+    alert('¡Registro exitoso! Bienvenido ' + nombre);
+    // window.location.href = 'login.html';
+});
