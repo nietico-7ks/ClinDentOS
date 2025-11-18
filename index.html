@@ -1,20 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClinDentOS - Agendamiento de Citas</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-    <!--BARRA DE NAVEGACIÓN-->
-    <div class="navbar">
         <div class="navbar-contenido">
-            <!-- Logo de la clínica -->
-            <div class="logo-contenedor">
-                <img src="Imagenes/ClintDentOS Logo.jfif" alt="ClinDentOS Logo" class="logo-img" width="100px" height="100px">
-                <div class="logo-texto">ClinDentOS</div>
+            <!-- Logo con imagen -->
+            <div class="logo-container">
+                <img src="Imagenes/logo.png" alt="ClinDentOS Logo" class="logo-imagen">
+                <span class="logo-texto">ClinDentOS</span>
             </div>
             
             <!-- Menú de navegación -->
@@ -196,4 +184,224 @@
                 <h4 class="titulo-footer">Información</h4>
                 <div class="info-footer">
                     <div class="item-info">
-                        <span
+                        <span class="icono-info">🕐</span>
+                        <div>
+                            <p class="label-info">Lunes - Domingo</p>
+                            <p class="valor-info">Según el día</p>
+                        </div>
+                    </div>
+                    <div class="item-info">
+                        <span class="icono-info">📞</span>
+                        <div>
+                            <p class="label-info">Teléfono</p>
+                            <p class="valor-info">+57 311 224 23 11</p>
+                        </div>
+                    </div>
+                    <div class="item-info">
+                        <span class="icono-info">📧</span>
+                        <div>
+                            <p class="label-info">Email</p>
+                            <p class="valor-info">clindentos@gmail.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Columna 4: Newsletter -->
+            <div class="columna-footer">
+                <h4 class="titulo-footer">¡Obten noticias!</h4>
+                <p class="descripcion-footer">Suscríbete para recibir consejos y ofertas especiales.</p>
+                <form class="formulario-newsletter" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirte!');">
+                    <input type="email" placeholder="tu@email.com" required class="input-newsletter">
+                    <button type="submit" class="boton-newsletter">Suscribir</button>
+                </form>
+            </div>
+            
+        </div>
+        
+        <!-- Línea divisoria -->
+        <div class="linea-divisoria-footer"></div>
+        
+        <!-- Pie del footer -->
+        <div class="footer-pie">
+            <p>&copy; 2025 <strong>ClinDentOS</strong>. Todos los derechos reservados.</p>
+            <div class="enlaces-legales">
+                <a href="#">Política de Privacidad</a>
+                <span>•</span>
+                <a href="#">Términos y Condiciones</a>
+                <span>•</span>
+                <a href="#">Cookies</a>
+            </div>
+        </div>
+    </footer>
+
+
+    <div class="fondo-modal" id="modalAgendamiento">
+        <div class="contenido-modal">
+            
+            <!-- Botón para cerrar el modal -->
+            <button class="boton-cerrar" onclick="cerrarModal()">&times;</button>
+            
+            <h2>Agendar Nueva Cita</h2>
+
+            <!-- Indicador de progreso (5 pasos) -->
+            <div class="indicador-pasos">
+                <div class="paso activo" id="indicador-1">
+                    <div class="numero-paso">1</div>
+                    <div class="texto-paso">Servicio</div>
+                </div>
+                <div class="paso" id="indicador-2">
+                    <div class="numero-paso">2</div>
+                    <div class="texto-paso">Fecha</div>
+                </div>
+                <div class="paso" id="indicador-3">
+                    <div class="numero-paso">3</div>
+                    <div class="texto-paso">Hora</div>
+                </div>
+                <div class="paso" id="indicador-4">
+                    <div class="numero-paso">4</div>
+                    <div class="texto-paso">Datos</div>
+                </div>
+                <div class="paso" id="indicador-5">
+                    <div class="numero-paso">✓</div>
+                    <div class="texto-paso">Confirmar</div>
+                </div>
+            </div>
+
+            <div class="seccion-paso visible" id="paso-1">
+                <h3>Selecciona un Servicio</h3>
+                <div class="grid-servicios-form">
+                    
+                    <!-- Opción 1: Limpieza Dental -->
+                    <div class="opcion-servicio">
+                        <input type="radio" name="servicio" id="servicio-1" value="Limpieza Dental">
+                        <label for="servicio-1" class="etiqueta-servicio">
+                            <div class="icono-servicio-form">🦷</div>
+                            <div>Limpieza Dental</div>
+                        </label>
+                    </div>
+                    
+                    <!-- Opción 2: Blanqueamiento -->
+                    <div class="opcion-servicio">
+                        <input type="radio" name="servicio" id="servicio-2" value="Blanqueamiento">
+                        <label for="servicio-2" class="etiqueta-servicio">
+                            <div class="icono-servicio-form">✨</div>
+                            <div>Blanqueamiento</div>
+                        </label>
+                    </div>
+                    
+                    <!-- Opción 3: Ortodoncia -->
+                    <div class="opcion-servicio">
+                        <input type="radio" name="servicio" id="servicio-3" value="Ortodoncia">
+                        <label for="servicio-3" class="etiqueta-servicio">
+                            <div class="icono-servicio-form">😁</div>
+                            <div>Ortodoncia</div>
+                        </label>
+                    </div>
+                    
+                    <!-- Opción 4: Consulta General -->
+                    <div class="opcion-servicio">
+                        <input type="radio" name="servicio" id="servicio-4" value="Consulta General">
+                        <label for="servicio-4" class="etiqueta-servicio">
+                            <div class="icono-servicio-form">👨‍⚕️</div>
+                            <div>Consulta General</div>
+                        </label>
+                    </div>
+                    
+                    <!-- Opción 5: Extracción -->
+                    <div class="opcion-servicio">
+                        <input type="radio" name="servicio" id="servicio-5" value="Extracción">
+                        <label for="servicio-5" class="etiqueta-servicio">
+                            <div class="icono-servicio-form">🩺</div>
+                            <div>Extracción</div>
+                        </label>
+                    </div>
+                    
+                    <!-- Opción 6: Implantes -->
+                    <div class="opcion-servicio">
+                        <input type="radio" name="servicio" id="servicio-6" value="Implantes">
+                        <label for="servicio-6" class="etiqueta-servicio">
+                            <div class="icono-servicio-form">🦴</div>
+                            <div>Implantes</div>
+                        </label>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="seccion-paso" id="paso-2">
+                <h3>Selecciona una Fecha</h3>
+                <div class="contenedor-fecha">
+                    <input type="date" id="fecha">
+                </div>
+            </div>
+
+
+            <div class="seccion-paso" id="paso-3">
+                <h3>Selecciona una Hora</h3>
+                <div class="grid-horas" id="contenedorHoras">
+                    <!-- Los botones de hora se crean con JavaScript -->
+                </div>
+            </div>
+
+
+            <div class="seccion-paso" id="paso-4">
+                <h3>Tus Datos</h3>
+                
+                <!-- Campo: Nombre -->
+                <div class="grupo-input">
+                    <label>Nombre Completo *</label>
+                    <input type="text" id="nombre" placeholder="Ej: Juan Pérez">
+                </div>
+                
+                <!-- Campo: Email -->
+                <div class="grupo-input">
+                    <label>Correo Electrónico *</label>
+                    <input type="email" id="email" placeholder="ejemplo@correo.com">
+                </div>
+                
+                <!-- Campo: Teléfono -->
+                <div class="grupo-input">
+                    <label>Teléfono *</label>
+                    <input type="tel" id="telefono" placeholder="300 123 4567">
+                </div>
+            </div>
+
+    
+            <div class="seccion-paso" id="paso-5">
+                <h3>Resumen de tu Cita</h3>
+                <div class="caja-resumen" id="contenedorResumen">
+                    <!-- El contenido del resumen se genera con JavaScript -->
+                </div>
+            </div>
+
+            <!-- Botones de navegación entre pasos -->
+            <div class="botones-navegacion">
+                <button class="boton-nav boton-anterior" id="botonAnterior" onclick="irPasoAnterior()" disabled>
+                    ← Anterior
+                </button>
+                <button class="boton-nav boton-siguiente" id="botonSiguiente" onclick="irPasoSiguiente()">
+                    Siguiente →
+                </button>
+                <button class="boton-nav boton-siguiente" id="botonConfirmar" onclick="confirmarCita()" style="display: none;">
+                    Confirmar Cita ✓
+                </button>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="modal-confirmacion" id="modalConfirmacion">
+        <div class="contenido-confirmacion">
+            <div class="icono-confirmacion exito" id="iconoConfirmacion">✓</div>
+            <h3 id="tituloConfirmacion">¡Cita Agendada!</h3>
+            <p id="mensajeConfirmacion">Tu cita ha sido reservada con éxito.</p>
+            <button class="boton-cerrar-confirmacion" onclick="cerrarConfirmacion()">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Enlazar el archivo JavaScript -->
+    <script src="functions.js"></script>
+    
+</body>
+</html>
