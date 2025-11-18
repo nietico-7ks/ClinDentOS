@@ -15,6 +15,22 @@ const datosCita = {
     telefono: '' // Teléfono del paciente
 };
 
+// Función para abrir/cerrar el menú hamburguesa
+function toggleMenu() {
+    const menu = document.querySelector('.menu-navegacion');
+    const hamburguesa = document.querySelector('.menu-hamburguesa');
+    menu.classList.toggle('activo');
+    hamburguesa.classList.toggle('activo');
+}
+
+// Cerrar menú al hacer clic en un enlace (opcional)
+document.querySelectorAll('.enlace-nav').forEach(enlace => {
+    enlace.addEventListener('click', () => {
+        document.querySelector('.menu-navegacion').classList.remove('activo');
+        document.querySelector('.menu-hamburguesa').classList.remove('activo');
+    });
+});
+
 // Variable que controla el paso actual del formulario (1-5)
 let pasoActual = 1;
 
